@@ -21,8 +21,8 @@
 # Least specific includes go first, so that they can get
 # overridden further down
 
-# include rules from the generic passion board
-include device/htc/passion-common/AndroidBoardCommon.mk
+# include rules from the generic x2 board
+#include device/yuhua/x2-common/AndroidBoardCommon.mk
 
 # include the non-open-source counterpart to this file
--include vendor/htc/passion/AndroidBoardVendor.mk
+-include vendor/yuhua/x2/AndroidBoardVendor.mk

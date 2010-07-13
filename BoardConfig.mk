@@ -26,10 +26,16 @@
 USE_CAMERA_STUB := true
 
 # inherit from the proprietary version
--include vendor/htc/passion/BoardConfigVendor.mk
+-include vendor/yuhua/x2/BoardConfigVendor.mk
 
 # Get the generic variables that are common between all versions
-# of passion
-include device/htc/passion-common/BoardConfigCommon.mk
+# of x2
+#include device/htc/passion-common/BoardConfigCommon.mk
 
-TARGET_RECOVERY_UI_LIB := librecovery_ui_passion librecovery_ui_htc
+#TARGET_NO_BOOTLOADER := true
+
+TARGET_RECOVERY_UI_LIB := librecovery_ui_x2 librecovery_ui_yuhua
+
+# XScale-V3 based processor rev 3 (v51)
+TARGET_CPU_ABI := armeabi-v51
+#TARGET_CPU_ABI2 := armeabi

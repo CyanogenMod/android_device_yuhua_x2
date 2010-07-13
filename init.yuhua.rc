@@ -1,0 +1,216 @@
+on early-init
+    device mtd@misc 0460 radio diag  
+
+    chmod 0777 /init.yuhua.sh 
+    chmod 0777 /modemon.sh 
+    chmod 0777 /usb_ether_on.sh 
+
+    device /dev/yuhua_gsm* 0666 system system
+    device /dev/tty*	  0666 system system
+    device /dev/video0	0666 system system
+    device /dev/snd/*  0666 system system
+    device /dev/sensor_2d  0666 system system
+#for FM
+    device /dev/radio0 0666 system system
+#for 3d sensor
+    device /dev/bma150 0666 system system
+#for BT AVRTP
+    device /dev/uinput 0666 bluetooth bluetooth
+#for tat table
+    device /dev/block/mtdblock1 0666 radio system
+#for recovery (mtd3)
+    device /dev/block/mtdblock3 0666 system system
+    device /dev/mtd/mtd3 0666 system system
+#for GCU
+    device /dev/m2d 0666 system system
+    device /dev/bmm 0777 root video
+# for MVED
+    device /dev/mved 0777 root video
+
+on boot
+# unmap left alt to avoid console switch
+    setkey 0x0 0x38 0x0
+# dream reset SEND+MENU+END
+    setkey 0x0 0xe7 0x706
+    setkey 0x0 0x8b 0x707
+
+    setkey 0x40 0xe7 0x706
+    setkey 0x40 0x8b 0x707
+
+    setkey 0x80 0xe7 0x706
+    setkey 0x80 0x8b 0x707
+
+    setkey 0xc0 0xe7 0x706
+    setkey 0xc0 0x8b 0x707
+    setkey 0xc0 0x6b 0x20c
+
+    mkdir /data/misc/wifi 0770 wifi wifi
+    mkdir /data/misc/wifi/sockets 0770 wifi wifi
+    mkdir /data/misc/dhcp 0770 dhcp dhcp
+    mkdir /data/misc/udhcpd 0777 dhcp dhcp
+    chown dhcp dhcp /data/misc/dhcp
+# for mfg
+    chmod 0777 /data/anr
+
+    #TODO: remove these two once we switch kernel to rfkill interface
+    chown bluetooth bluetooth /sys/module/board_trout/parameters/bluetooth_power_on
+    chmod 0660 /sys/module/board_trout/parameters/bluetooth_power_on
+
+    # bluetooth power up/down interface
+    chown bluetooth bluetooth /sys/class/rfkill/rfkill0/type
+    chown bluetooth bluetooth /sys/class/rfkill/rfkill0/state
+    chmod 0660                /sys/class/rfkill/rfkill0/state
+    
+    chown system system /sys/class/misc/yuhua_misc/lcdbl
+    chown system system /sys/class/misc/yuhua_misc/keybl
+    chown system system /sys/class/misc/yuhua_misc/vibrator
+# for touch-screen calibarte
+    chmod 0666 /sys/class/input/input0/calibrate_active
+    chmod 0666 /sys/class/input/input0/calibrate_matrix
+
+# for motion sensor
+    chmod 0666 /sys/devices/platform/mxc6202/powerdown
+
+# keep old gsm2 serial name here, link fail if ttySSP0 exit   
+    symlink /dev/ttyS1 /dev/ttySSP0
+
+    mkdir /tmp 0777 system system
+#mkdir /var for pppd
+    mkdir /sqlite_stmt_journals/var 0777 system system
+    mkdir /sqlite_stmt_journals/var/lock 0777 system system
+    mkdir /sqlite_stmt_journals/var/run 0777 system system
+    setprop ro.kernel.android.qemud 0
+    setprop ro.radio.use-ppp no
+    setprop wifi.interface eth0
+    setprop CONNECTTYPE "WIFI"
+    setprop WPA_SUPPLICANT_STATUS "notok"
+    setprop ftpstatus "off"
+    setprop DUN_CONNECTED "notok"
+    #add for support google network location 
+    setprop ro.com.google.locationfeatures   1
+    
+#set LCD density (400*160/480=133 or 240*160/320=120)
+    setprop ro.sf.lcd_density 133
+
+on property:init.svc.wpa_supplicant=stopped
+    stop dhcpcd
+
+# compass/accelerometer daemon
+service akmd /system/bin/akmd
+    user compass
+    group compass misc input
+
+service wlan_loader /system/bin/wlan_loader \
+    -f /system/etc/wifi/Fw1251r1c.bin -e /proc/calibration \
+    -i /system/etc/wifi/tiwlan.ini
+    disabled
+    oneshot
+service iwconfig /system/bin/iwconfig eth0 power on
+    user wifi root
+    group wifi inet root
+    socket wpa_eth0 dgram 660 wifi wifi root
+    disabled
+    oneshot
+service wpa_supplicant /system/bin/wpa_supplicant \
+    -Dwext -ieth0 -c/data/misc/wifi/wpa_supplicant.conf 
+    user wifi root
+    group wifi inet root
+    socket wpa_eth0 dgram 660 wifi wifi root
+    disabled
+
+# for the moment, while debugging dhcpcd, logwrapper is
+# used to get its output to appear in the logs. This will
+# be removed before shipping.
+service dhcpcd /system/bin/logwrapper dhcpcd -d -d
+    disabled
+    oneshot
+service wifiopen /system/bin/wifiopen.sh                                         
+    disabled
+    oneshot
+service wificlose /system/bin/wificlose.sh                                            
+    disabled
+    oneshot
+service btopen /system/bin/btopen.sh                                         
+    disabled
+    oneshot
+service btclose /system/bin/btclose.sh                                            
+    disabled
+    oneshot
+service bccmdinit /system/bin/bccmdinit.sh
+    disabled
+    oneshot
+service wifideepsleep /system/bin/wifideepsleep.sh
+    disabled 
+    oneshot
+service btdeepsleep /system/bin/btdeepsleep.sh
+    disabled 
+    oneshot
+service gh381deepsleep /system/bin/gh381deepsleep.sh
+    disabled 
+    oneshot
+service gh381pcmset /system/bin/gh381pcmset.sh
+    disabled 
+    oneshot
+service hciattach38400 /system/bin/hciattach -n /dev/ttyS2 any 38400 flow
+    socket bluetooth stream 660 bluetooth bluetooth
+    user bluetooth           
+    group bluetooth net_bt_admin
+    disabled
+service hciattach1500000 /system/bin/hciattach -n /dev/ttyS2 any 1500000 flow
+    socket bluetooth stream 660 bluetooth bluetooth
+    user bluetooth           
+    group bluetooth net_bt_admin
+    disabled   
+service hciattach115200 /system/bin/hciattach -n /dev/ttyS2 any 115200 flow
+    socket bluetooth stream 660 bluetooth bluetooth
+    user bluetooth
+    group bluetooth net_bt_admin
+    disabled
+service bttestmode /system/bin/bttestmode.sh
+    disabled
+    oneshot
+
+service yuhua-board-init /init.yuhua.sh
+    oneshot
+service iptablesscript /system/bin/iptablesscript.sh
+    disabled
+    oneshot
+service dun /system/bin/dund.sh
+    disabled
+#add for wifi ap
+service udhcpd /system/bin/udhcpd /data/misc/udhcpd/udhcpd.conf &
+    disabled
+service switchap2cl /system/bin/switchap2cl.sh
+    disabled
+    oneshot
+#add for bt PAN
+service pan /system/bin/pand -n -s -r NAP -d NAP -u /system/bin/pand_up.sh
+    disabled
+service panconnect /system/bin/panconnect.sh
+    disabled
+    oneshot
+service pandisconnect /system/bin/pandisconnect.sh
+    disabled
+    oneshot
+service pandisall /system/bin/pand -K
+    disabled
+    oneshot
+#hongcheng.xie add 2009-01-05 for dual mode modem2
+service ril-daemon-2 /system/bin/rild -l libnxp5209-ril.so -- -d /dev/ttyp5 &
+    socket rild_2 stream 660 root radio
+    socket rild-debug_2 stream 660 radio system
+    user root
+    group radio cache inet misc
+
+service multi /system/bin/multi -c 1 -f /system/etc/multi_cfg/multiarm.cfg &
+service multi_2 /system/bin/multi -c 2 -f /system/etc/multi_cfg/multiarm2.cfg &
+
+service usb-udhcpd /system/bin/udhcpd /data/misc/udhcpd/udhcpd_usb.conf &
+    disabled
+    oneshot
+service usb-tether-start /system/bin/usb-tether start
+    disabled
+    oneshot
+service usb-tether-stop /system/bin/usb-tether stop
+    disabled
+    oneshot

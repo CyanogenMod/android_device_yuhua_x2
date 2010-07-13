@@ -22,18 +22,18 @@
 # Kernel Targets
 ifeq ($(TARGET_PREBUILT_KERNEL),)
 ifeq ($(TARGET_KERNEL_CONFIG),)
-TARGET_PREBUILT_KERNEL := device/htc/passion/kernel
+TARGET_PREBUILT_KERNEL := device/yuhua/x2/kernel
 endif # TARGET_KERNEL_CONFIG
 endif # TARGET_PREBUILT_KERNEL
 
 ## (1) First, the most specific values, i.e. the aspects that are specific to GSM
 
 PRODUCT_COPY_FILES := \
-    device/htc/passion/init.mahimahi.rc:root/init.mahimahi.rc
+    device/yuhua/x2/init.yuhua.rc:root/init.yuhua.rc
 
 PRODUCT_PROPERTY_OVERRIDES := \
-    ro.sf.lcd_density=240 \
-    rild.libpath=/system/lib/libhtc_ril.so \
+    ro.sf.lcd_density=120 \
+    rild.libpath=/system/lib/libyh_ril.so \
     wifi.interface=eth0 \
     wifi.supplicant_scan_interval=15
 
@@ -53,7 +53,7 @@ PRODUCT_PROPERTY_OVERRIDES += \
 
 
 ## (2) Also get non-open-source GSM-specific aspects if available
-$(call inherit-product-if-exists, vendor/htc/passion/passion-vendor.mk)
+$(call inherit-product-if-exists, vendor/yuhua/x2/x2-vendor.mk)
 
 ## (3)  Finally, the least specific parts, i.e. the non-GSM-specific aspects
-$(call inherit-product, device/htc/passion-common/passion.mk)
+#$(call inherit-product, device/yuhua/x2-common/x2.mk)

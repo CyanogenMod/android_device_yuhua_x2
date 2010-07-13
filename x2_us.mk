@@ -1,3 +1,4 @@
+#
 # Copyright (C) 2009 The Android Open Source Project
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -11,20 +12,15 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
-#
-# This file is the build configuration for a full Android
-# build for passion hardware. This cleanly combines a set of
-# device-specific aspects (drivers) with a device-agnostic
-# product configuration (apps).
 #
 
-# Inherit from those products. Most specific first.
-$(call inherit-product, $(SRC_TARGET_DIR)/product/languages_full.mk)
-$(call inherit-product, device/htc/passion/passion_us.mk)
-$(call inherit-product, $(SRC_TARGET_DIR)/product/full.mk)
+#
+# This is the device-specific product configuration for passion,
+# configured with US-specific settings.
+#
 
-# Discard inherited values and use our own instead.
-PRODUCT_NAME := full_passion
-PRODUCT_DEVICE := passion
-PRODUCT_MODEL := Full Android on Passion
+# The gps config appropriate for this device
+$(call inherit-product, device/common/gps/gps_us_supl.mk)
+
+# The rest of the configuration is inherited from a generic config
+$(call inherit-product, device/yuhua/x2/x2.mk)

@@ -20,9 +20,9 @@
 #
 
 # Inherit from those products. Most specific first.
-$(call inherit-product, device/htc/passion/passion_us.mk)
+$(call inherit-product, device/yuhua/x2/x2_us.mk)
 $(call inherit-product, $(SRC_TARGET_DIR)/product/generic.mk)
 
 # Discard inherited values and use our own instead.
-PRODUCT_NAME := generic_passion
-PRODUCT_DEVICE := passion
+PRODUCT_NAME := generic_x2
+PRODUCT_DEVICE := x2

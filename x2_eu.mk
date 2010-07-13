@@ -16,11 +16,11 @@
 
 #
 # This is the device-specific product configuration for passion,
-# configured with Asia-specific settings.
+# configured with Europe-specific settings.
 #
 
 # The gps config appropriate for this device
-$(call inherit-product, device/common/gps/gps_as_supl.mk)
+$(call inherit-product, device/common/gps/gps_eu_supl.mk)
 
 # The rest of the configuration is inherited from a generic config
-$(call inherit-product, device/htc/passion/passion.mk)
+$(call inherit-product, device/yuhua/x2/x2.mk)
