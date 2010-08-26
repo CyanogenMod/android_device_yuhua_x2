@@ -39,3 +39,4 @@ TARGET_RECOVERY_UI_LIB := librecovery_ui_x2 librecovery_ui_yuhua
 # XScale-V3 based processor rev 3 (v51)
 TARGET_CPU_ABI := armeabi-v51
 #TARGET_CPU_ABI2 := armeabi
+TARGET_PREBUILT_KERNEL := device/yuhua/x2/kernel
