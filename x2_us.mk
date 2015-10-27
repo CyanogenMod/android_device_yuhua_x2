@@ -15,7 +15,7 @@
 #
 
 #
-# This is the device-specific product configuration for passion,
+# This is the device-specific product configuration for X2,
 # configured with US-specific settings.
 #
 
